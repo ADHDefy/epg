@@ -16,13 +16,18 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16' # Specify Node.js version
+          node-version: '16'
 
       - name: Install Dependencies
         run: npm install
 
       - name: Run EPG Generator
         run: npm start
+
+      - name: Create Docs Folder and Move EPG
+        run: |
+          mkdir -p docs
+          mv output.xml docs/epg.xml
 
       - name: Commit and Push Changes
         run: |
@@ -33,6 +38,3 @@ jobs:
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Move Generated EPG to GitHub Pages Folder
-        run: mkdir -p docs && mv output.xml docs/epg.xml
