@@ -1,33 +1,41 @@
-name: EPG Generator Workflow
+name: EPG Generator
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  generate_channels_list:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+    - name: Checkout Repository
+      uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
+    - name: Set Up Node.js
+      uses: actions/setup-node@v3
       with:
         node-version: '16'
 
-    - name: Install dependencies
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Run EPG Generator with Custom Channels List
+      run: npm run grab -- --channels ./channels.xml
+
+    - name: Create Docs Folder and Move EPG
       run: |
-        npm ci
+        mkdir -p docs
+        mv output.xml docs/epg.xml
 
-    - name: Generate Custom Channel List
-      run: npm run channels:generate
-
-    - name: Run EPG grabber
-      run: npm run grab
-
-    - name: Commit custom channel list (if needed)
-      run: |
-        git add custom_channels.xml
-        git commit -m "Add custom channels list"
-        git push
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs
