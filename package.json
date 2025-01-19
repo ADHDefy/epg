@@ -5,6 +5,7 @@
     "act:update": "act workflow_dispatch -W .github/workflows/update.yml",
     "api:load": "npx tsx scripts/commands/api/load.ts",
     "api:generate": "npx tsx scripts/commands/api/generate.ts",
+    "channels:generate": "ts-node scripts/commands/channels/generateCustomList.ts",
     "channels:lint": "npx tsx scripts/commands/channels/lint.mts",
     "channels:parse": "npx tsx scripts/commands/channels/parse.ts",
     "channels:edit": "npx tsx scripts/commands/channels/edit.ts",
