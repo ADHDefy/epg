@@ -1,52 +1,33 @@
-name: EPG Generator
+name: EPG Generator Workflow
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
-  build:
+  generate_channels_list:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-    - name: Set Up Node.js
-      uses: actions/setup-node@v3
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
       with:
         node-version: '16'
 
-    - name: Install Dependencies
-      run: npm install
-
-    - name: Run EPG Generator with Playlist
-      run: npm run grab -- --playlist https://iptv-org.github.io/iptv/index.m3u
-
-    - name: Debug List All Files
-      run: ls -R
-
-    - name: Check for output.xml
+    - name: Install dependencies
       run: |
-        if [ ! -f output.xml ]; then
-          echo "No output.xml file generated!"
-          exit 1
-        fi
-        echo "output.xml found!"
+        npm ci
 
-    - name: Create Docs Folder and Move EPG
+    - name: Generate Custom Channel List
+      run: npm run channels:generate
+
+    - name: Run EPG grabber
+      run: npm run grab
+
+    - name: Commit custom channel list (if needed)
       run: |
-        mkdir -p docs
-        mv output.xml docs/epg.xml
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs
+        git add custom_channels.xml
+        git commit -m "Add custom channels list"
+        git push
