@@ -21,8 +21,8 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Run EPG Generator
-        run: npm start
+      - name: Run EPG Generator with Playlist
+        run: npm run grab -- --playlist https://iptv-org.github.io/iptv/index.m3u
 
       - name: Create Docs Folder and Move EPG
         run: |
