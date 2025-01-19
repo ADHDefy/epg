@@ -25,7 +25,7 @@ jobs:
     - name: Run EPG Generator with Playlist
       run: npm run grab -- --playlist https://iptv-org.github.io/iptv/index.m3u
 
-    - name: Debug: List All Files
+    - name: Debug List All Files
       run: ls -R
 
     - name: Check for output.xml
