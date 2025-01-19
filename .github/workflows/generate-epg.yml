@@ -1,43 +1,44 @@
-name: Generate and Update EPG
+name: EPG Generator
 
 on:
-  schedule:
-    - cron: '0 0 * * *'  # Runs daily at midnight UTC
-  workflow_dispatch: # Allows manual triggering
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+    - name: Checkout Repository
+      uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
+    - name: Set Up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
 
-      - name: Install Dependencies
-        run: npm install
+    - name: Install Dependencies
+      run: npm install
 
-      - name: Run EPG Generator with Playlist
-        run: npm run grab -- --playlist https://iptv-org.github.io/iptv/index.m3u
+    - name: Run EPG Generator with Playlist
+      run: npm run grab -- --playlist https://iptv-org.github.io/iptv/index.m3u
 
-      - name: List All Files (Debugging)
-        run: ls -R
+    - name: Debug: List All Files
+      run: ls -R
 
-      - name: Create Docs Folder and Move EPG
-        run: |
-          mkdir -p docs
-          mv output.xml docs/epg.xml
+    - name: Create Docs Folder and Move EPG
+      run: |
+        mkdir -p docs
+        mv output.xml docs/epg.xml
 
-      - name: Commit and Push Changes
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "Update EPG"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs
