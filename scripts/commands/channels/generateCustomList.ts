@@ -1,7 +1,10 @@
+import { ChannelsParser } from 'epg-grabber'; // Adjust based on where it's defined
+import { Channel } from 'epg-grabber'; // Adjust based on where it's defined
 import { Logger, Storage, Collection } from '@freearhey/core'
 import path from 'path'
 import { SITES_DIR } from '../../constants'
 import fs from 'fs'
+import xml2js from 'xml2js'
 
 async function generateCustomChannelList(siteName: string, outputPath: string) {
   const logger = new Logger()
