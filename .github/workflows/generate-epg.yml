@@ -28,6 +28,14 @@ jobs:
     - name: Debug: List All Files
       run: ls -R
 
+    - name: Check for output.xml
+      run: |
+        if [ ! -f output.xml ]; then
+          echo "No output.xml file generated!"
+          exit 1
+        fi
+        echo "output.xml found!"
+
     - name: Create Docs Folder and Move EPG
       run: |
         mkdir -p docs
