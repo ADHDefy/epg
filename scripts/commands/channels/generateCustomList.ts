@@ -1,54 +1,36 @@
 import { ChannelsParser } from 'scripts/core'; // Adjust based on where it's defined
-import { Channel } from 'epg-grabber'; // Adjust based on where it's defined
-import { Logger, Storage, Collection } from '@freearhey/core'
-import path from 'path'
-import { SITES_DIR } from '../../constants'
-import fs from 'fs'
-import xml2js from 'xml2js'
+import * as xml2js from 'xml2js';  // Import xml2js to parse or generate XML
+import { Logger, Storage, Collection } from '@freearhey/core';
+import path from 'path';
+import { SITES_DIR } from '../../constants';
+import fs from 'fs';
 
-async function generateCustomChannelList(siteName: string, outputPath: string) {
-  const logger = new Logger()
+async function generateCustomChannelList() {
+  const logger = new Logger();
 
-  logger.start('Generating custom channels list...')
+  // Your logic for generating the custom channel list
+  logger.start('generating custom channel list...');
+  const storage = new Storage();
+  const parser = new ChannelsParser({ storage });
+
+  let files = await storage.list(path.join(SITES_DIR, '*.channels.xml'));
+  let parsedChannels = new Collection();
   
-  const storage = new Storage()
-
-  // Fetch the channel XML files from the specified site
-  let pattern = path.join(SITES_DIR, siteName, '*.channels.xml')
-  pattern = pattern.replace(/\\/g, '/')
-  
-  const files = await storage.list(pattern)
-
-  if (files.length === 0) {
-    logger.error(`No channel files found for site: ${siteName}`)
-    return
-  }
-
-  let channels = new Collection()
-  const parser = new ChannelsParser({ storage })
-
+  // Parsing channels
   for (const filepath of files) {
-    channels = channels.concat(await parser.parse(filepath))
+    parsedChannels = parsedChannels.concat(await parser.parse(filepath));
   }
 
-  logger.info(`Found ${channels.count()} channel(s)`)
+  const channelList: { channel: string }[] = parsedChannels.map((channel) => ({
+    channel: channel.name,
+  }));
 
-  // Create XML structure
-  const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
-<channels>
-${channels
-    .map((channel: Channel) => {
-      return `  <channel site="${channel.site}" lang="${channel.lang}" xmltv_id="${channel.xmltv_id}" site_id="${channel.site_id}">
-    ${channel.name}
-  </channel>`
-    })
-    .join('\n')}
-</channels>`
+  // Writing to XML
+  const builder = new xml2js.Builder();
+  const xml = builder.buildObject({ channels: { channel: channelList } });
 
-  // Write the XML content to the specified output file
-  fs.writeFileSync(outputPath, xmlContent)
-  logger.success(`Custom channel list written to ${outputPath}`)
+  fs.writeFileSync('custom_channels.xml', xml);
+  logger.success('Custom channel list generated!');
 }
 
-// Call the function
-generateCustomChannelList('arirang.com', 'custom_channels.xml')
+generateCustomChannelList().catch((err) => console.error(err));
