@@ -1,4 +1,4 @@
-import { ChannelsParser } from 'epg-grabber'; // Adjust based on where it's defined
+import { ChannelsParser } from 'scripts/core'; // Adjust based on where it's defined
 import { Channel } from 'epg-grabber'; // Adjust based on where it's defined
 import { Logger, Storage, Collection } from '@freearhey/core'
 import path from 'path'
