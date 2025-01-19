@@ -24,6 +24,9 @@ jobs:
       - name: Run EPG Generator with Playlist
         run: npm run grab -- --playlist https://iptv-org.github.io/iptv/index.m3u
 
+      - name: List All Files (Debugging)
+        run: ls -R
+
       - name: Create Docs Folder and Move EPG
         run: |
           mkdir -p docs
