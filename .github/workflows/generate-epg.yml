@@ -23,11 +23,10 @@ jobs:
       run: npm install
 
     - name: Run EPG Generator with Custom Channels List
-      run: npm run grab -- --channels ./channels.xml
+      run: npm run grab -- --channels docs/channels.xml
 
-    - name: Create Docs Folder and Move EPG
+    - name: Move EPG
       run: |
-        mkdir -p docs
         mv output.xml docs/epg.xml
 
   deploy:
